@@ -16,8 +16,20 @@ except FileNotFoundError:
 
 sht = wb.sheets['Sheet1']
 rng = sht.range('A1')
-
 rng.value = 'A1单元格'
+rng = rng.offset(0, 1)
+rng.value = '应当为B1'
+values = [0, 1, 2, 3, 4, 5]
+column_index = rng.column
+print(column_index)
+for index, value in enumerate(values):
+    cell = sht.range(2 + index, column_index)
+    cell.value = value
+rng = rng.offset(0, 1)
+rng.value = '应当为C1'
+
+d_column_range_value = sht.range('B3:B7').value
+print(f"Values in column G from row 8 to the end: {d_column_range_value}")
 
 # 保存文件
 wb.save(r'count.xlsx')
