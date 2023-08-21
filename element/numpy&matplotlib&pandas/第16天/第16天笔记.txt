@@ -1,0 +1,28 @@
+Timestamp
+
+pd.to_datetime
+
+生成时间序列:
+date_range(start,end )
+closed---->left 包含左侧
+	  ---->right 包含右侧
+  
+asfreq
+
+
+shift()
+
+重采样: resample
+
+
+
+pandas文件读取操作
+
+
+D:\桌面\数据分析-班级\3-4班\第16天\data\my_csv.csv
+/opt/www/data/my_csv.csv
+
+./---当前路径
+../ ---上一级
+
+./data/my_csv.csv ---->相对路径

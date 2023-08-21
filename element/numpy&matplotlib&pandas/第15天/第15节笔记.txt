@@ -1,0 +1,71 @@
+time datetime 时间模块
+
+pandas时间模块学习完
+
+
+pandas文件的操作
+
+
+
+复习:
+	数据爬取---数据是什么时候
+	
+	time-- 到1970-1-1 偏移量 数值
+	--- 不牵扯时区
+		2022年/4月/22日
+	    进行计算 加/减 秒数  
+		1天(60*60*24)
+	struct_time 时间元素,提取年  月 日...
+	
+	格式化后的时间:
+		%Y ---年
+		%m--月
+		%d -- 日
+		%H
+		%M
+		%S
+		
+	import datetime
+	datetime(继承了time)
+	
+	date -- 日期
+	datetime.date.today() -- 当天
+	
+	
+	
+	
+	
+	datetime --- 日期时间
+	datetime.datetime.now()
+	
+	timedelta--类
+	datetime.datetime.now() - datetime.datedetla(days=1)
+	
+
+本节课:
+	pd时间序列
+	
+	date_range
+	
+	重采样resample
+	# asfreq
+	shift() -- freq
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	

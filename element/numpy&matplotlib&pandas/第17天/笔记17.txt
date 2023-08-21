@@ -1,0 +1,57 @@
+本节课学习内容:
+
+1. 分组操作
+
+2. 数据合并
+
+3. 实例演示
+
+复习:
+	1. 文件操作:csv
+		read_csv: 读取文本文件 .csv .txt 
+		read_excel()   .xlsx
+		
+		pands.read_csv(文件路径)
+	
+		1). 编码问题:默认是utf-8
+			- encoding="gbk"
+		2).分隔符 sep
+			csv  ,
+			txt  sep=" " sep="\t"
+		
+		3).header  names
+			①.如果文件没有头部,直接使用names自定义列名
+			②.如果头部不在第一行,使用header设置头部
+				header = 1
+			③.存在头部想重新定义:
+				header = 0,names=[自定义列名]
+		4).设置某列为索引列:
+			index_col = "birthday"
+	2.缺失值	
+		NaN  NaT --->
+		None (pandas数据结构中不存在None)
+		
+		dropna() # 默认是在列中Na 数据,
+					发现后删除对应的行
+					any  all
+					指定列判断
+		fillna() # 直接空填充值
+				  values={"列名":"值"}
+
+	select avg(*) from user group by gender;
+	
+	
+	
+	select * from 表1 join 表2 on 表1.字段=表2.字段
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
