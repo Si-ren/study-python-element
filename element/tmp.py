@@ -1,18 +1,17 @@
-import numpy as np
-from scipy.spatial import Delaunay
-import matplotlib.pyplot as plt
+import pytest
 
-points = np.array([
-    [2, 4],
-    [3, 4],
-    [3, 0],
-    [2, 2],
-    [4, 1]
-])
+class TestTmp:
+    pass
+def CreateTestCase(yaml_path):
+    @pytest.mark.parametrize("http_request", yaml_path)
+    def func(http_request):
+       print(http_request)
 
-simplices = Delaunay(points).simplices
+    return func
 
-plt.triplot(points[:, 0], points[:, 1], simplices)
-plt.scatter(points[:, 0], points[:, 1], color='r')
 
-plt.show()
+
+if __name__ == "__main__":
+    setattr(TestTmp, "test_func01", CreateTestCase(yaml_path="./test.yaml"))
+    setattr(TestTmp, "test_func02", CreateTestCase(yaml_path="./test.yaml"))
+    pytest.main([])

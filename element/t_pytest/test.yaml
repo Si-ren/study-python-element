@@ -1,0 +1,27 @@
+---
+- name: 测试百度网页
+  request:
+    url: https://www.baidu.com
+    method: get
+    headers:
+      Content-Type: application/json
+    params:
+      t1: v1
+      t2: v2
+      t3: v3
+    validate:
+      - eq:
+        http_status: 200
+- name: 测试1111网页
+  request:
+    url: https://www.baidu.com
+    method: get
+    headers:
+      Content-Type: application/json
+    params:
+      t1: v1
+      t2: v2
+      t3: v3
+    validate:
+      - eq:
+        http_status: 200
