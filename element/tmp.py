@@ -1,17 +1,15 @@
-import pytest
+import http.client
+import json
 
-class TestTmp:
-    pass
-def CreateTestCase(yaml_path):
-    @pytest.mark.parametrize("http_request", yaml_path)
-    def func(http_request):
-       print(http_request)
-
-    return func
-
-
-
-if __name__ == "__main__":
-    setattr(TestTmp, "test_func01", CreateTestCase(yaml_path="./test.yaml"))
-    setattr(TestTmp, "test_func02", CreateTestCase(yaml_path="./test.yaml"))
-    pytest.main([])
+conn = http.client.HTTPSConnection("192.168.28.118", 32771)
+payload = json.dumps({
+   "task_id": "5d273a55de6b4e1b935ebbfa79b97195"
+})
+headers = {
+   'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+   'Content-Type': 'application/json'
+}
+conn.request("POST", "/api/contracts/v3/parser/external/result", payload, headers)
+res = conn.getresponse()
+data = res.read()
+print(data.decode("utf-8"))
