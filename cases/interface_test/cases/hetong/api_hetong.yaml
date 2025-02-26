@@ -1,0 +1,78 @@
+---
+- name: "创建解析任务 API"
+  retry: 3
+  retry_interval: 2 # 失败后等待2秒再重试
+  fail_fast: True
+  request:
+    url: http://192.168.28.118:32771/api/contracts/v3/parser/external/task/create?parse_type=ducument&merge_images=1
+    method: POST
+    headers:
+      accept: application/json
+    files:
+      documents:
+        path: ./cases/hetong/files/test.pdf
+        type: application/pdf
+  extract:
+    task_id: [text, "$.data.task_ids", 0]
+  validate:
+    equals:
+      status_code: 200
+
+- name: "获取解析结果 API"
+  retry: 3
+  retry_interval: 15 # 失败后等待2秒再重试
+  fail_fast: false
+  request:
+    url: http://192.168.28.118:32771/api/contracts/v3/parser/external/result
+    method: POST
+    headers:
+      Content-Type: application/json
+    json:
+      task_id: "${read_extract_yaml(task_id,0)}"
+  extract:
+    PageStrID: [text, "$.data.parse_result.pages[0].PageStrID", 0]
+  validate:
+    equals:
+      status_code: 200
+      "$.code": 200
+      "$.msg": "success"
+
+- name: "下载解析文档图片"
+  request:
+    url: http://192.168.28.118:32771/api/contracts/v3/parser/external/download_image
+    method: GET
+    params:
+      task_id: ${read_extract_yaml(task_id,0)}
+      page_id: ${read_extract_yaml(PageStrID)}
+  validate:
+    equals:
+      status_code: 200
+      "$.code": 200
+      "$.msg": "success"
+
+- name: "获取解析列表"
+  request:
+    url: http://192.168.28.118:32771/api/contracts/v3/parser/external/task/list
+    method: GET
+    params:
+      page: 1
+      pagesize: 10
+  validate:
+    equals:
+      status_code: 200
+      "$.code": 200
+      "$.msg": "success"
+
+- name: "删除解析任务"
+  request:
+    url: http://192.168.28.118:32771/api/contracts/v3/parser/external/task/delete
+    method: POST
+    headers:
+      Content-Type: application/json
+    json:
+      task_ids: "${read_extract_yaml(task_id)}"
+  validate:
+    equals:
+      status_code: 200
+      "$.code": 200
+      "$.msg": "success"
