@@ -1,9 +1,9 @@
 import yaml
 import logging
-
+import base64
+import os
 
 class Function:
-
     @staticmethod
     def read_extract_yaml(key: str, index=None) -> str:
         with open("./extract.yaml", encoding="utf-8") as f:
@@ -26,6 +26,18 @@ class Function:
             # 如果不是数组，直接返回值
             return str(value)
         
-
+    @staticmethod
+    def base64_file(file_path: str) -> str:
+        try:
+            # 获取当前工作目录的绝对路径
+            abs_path = os.path.abspath(file_path)
+            with open(abs_path, 'rb') as f:
+                # 读取文件内容并转换为base64
+                file_content = f.read()
+                base64_content = base64.b64encode(file_content).decode('utf-8')
+                return base64_content
+        except Exception as e:
+            logging.error(f"文件转base64失败: {str(e)}")
+            return None
 # if __name__ == '__main__':
 #     print(Function.read_extract_yaml('task_id'))

@@ -20,9 +20,9 @@ class TestAllCase:
 
 
 def CreateTestCase(yaml_path):
-    @pytest.mark.parametrize("http_request", read_case_yaml(yaml_path))
+    @pytest.mark.parametrize("http_request", read_case_yaml(yaml_path),
+                           ids=lambda x: x['name'])
     def func(self, http_request):
-        # print(http_request)
         if isinstance(http_request, list):
             for case in http_request:
                 ru.start_standard_process(http_request=case)

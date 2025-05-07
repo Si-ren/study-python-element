@@ -19,7 +19,8 @@ class RequestsUtils(object):
         method = http_request.get("request").get("method")
         headers = http_request.get("request").get("headers")
         json_data = http_request.get("request").get("json")
-        params = http_request.get("request").get("params")  # 添加params参数获取
+        params = http_request.get("request").get("params")
+        show_response = http_request.get("show_response", True)  # 新增参数，默认为True
         
         files_data = {}
         logging.info(f"请求url: {url} \n 请求method: {method} \n 请求headers: {headers} \n 请求params: {params} \n 请求json: {json_data}")
@@ -45,10 +46,13 @@ class RequestsUtils(object):
         resp = self.sess.request(method=method, url=url, headers=headers, 
                                params=params,  
                                files=files_data, json=json_data)
-        if "json" in resp.headers.get("Content-Type",""):
-            logging.info(resp.json())
-        else:
-            logging.info(resp.text)
+        
+        # 根据show_response参数决定是否打印响应体
+        if show_response:
+            if "json" in resp.headers.get("Content-Type",""):
+                logging.info(resp.json())
+            else:
+                logging.info(resp.text)
         return resp
 
     def start_standard_process(self, http_request):

@@ -19,6 +19,7 @@ class CaseInfo(object):
     retry_interval: int = 1  # 默认重试间隔1秒
     fail_fast: bool = False  # 失败是否立即终止
     extract: dict = None
+    show_response: bool = True  # 是否打印响应
 
 def verify_yaml(case_info: dict):
     try:

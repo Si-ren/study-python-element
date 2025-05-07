@@ -1,71 +1,102 @@
 ---
-- name: "创建解析任务 API"
-  retry: 3
-  retry_interval: 2 # 失败后等待2秒再重试
+- name: "创建比对任务 API"
   fail_fast: True
   request:
-    url: http://192.168.28.118:32771/api/contracts/v3/parser/external/task/create?parse_type=ducument&merge_images=1
-    method: POST
-    headers:
-      accept: application/json
-    files:
-      documents:
-        path: ./cases/hetong/files/test.pdf
-        type: application/pdf
-  extract:
-    task_id: [text, "$.data.task_ids", 0]
-  validate:
-    equals:
-      status_code: 200
-
-- name: "获取解析结果 API"
-  retry: 3
-  retry_interval: 15 # 失败后等待2秒再重试
-  fail_fast: false
-  request:
-    url: http://192.168.28.118:32771/api/contracts/v3/parser/external/result
+    url: http://192.168.28.118:32771/api/contracts/v3/comparison/external/create
     method: POST
     headers:
       Content-Type: application/json
     json:
+      convert_arg:
+        remove_stamp: 0
+        remove_comments: 1
+        remove_footnote: 1
+        remove_headerfooter: 1
+        remove_symbol: 1
+        merge_diff: 1
+        ignored_symbols: "①②③④⑤"
+      config:
+        engine: "recognize"
+        use_pdf_parser: "true"
+        remove_watermark: "true"
+      standard_doc:
+        - filedata: ${base64_file("./cases/hetong/files/产品买卖合同a.docx")}
+          filename: "产品买卖合同a.docx"
+      compare_doc:
+        - filedata: ${base64_file("./cases/hetong/files/产品买卖合同b.pdf")}
+          filename: "产品买卖合同b.pdf"
+  extract:
+    task_id: [text, "$.result.task_id", 0]
+  validate:
+    equals:
+      status_code: 200
+      "$.msg": "success"
+
+- name: "获取比对差异(获取文档信息接口)API01"
+  fail_fast: True
+  show_response: False
+  request:
+    url: http://192.168.28.118:32771/api/contracts/v3/comparison/external/info
+    method: GET
+    params:
       task_id: "${read_extract_yaml(task_id,0)}"
   extract:
-    PageStrID: [text, "$.data.parse_result.pages[0].PageStrID", 0]
+    doc_id1: [text, "$.data.docs[0].doc_id1", 0]
+    doc_id2: [text, "$.data.docs[0].doc_id2", 0]
+  validate:
+    equals:
+      status_code: 200
+      "$.code": 200
+      "$.msg": "请求成功"
+
+- name: "获取比对差异(获取比对详情接口)API01"
+  show_response: False
+  request:
+    url: http://192.168.28.118:32771/api/contracts/v3/comparison/external/result
+    method: GET
+    json:
+      task_id: "${read_extract_yaml(task_id,0)}"
+      doc_id1: ${read_extract_yaml(doc_id1,0)}
+      doc_id2: ${read_extract_yaml(doc_id2,0)}
+  extract:
+    page_id: [text, "$.data.page_list1[0].str_page_id", 0]
   validate:
     equals:
       status_code: 200
       "$.code": 200
       "$.msg": "success"
 
-- name: "下载解析文档图片"
+- name: "下载比对文档图片"
+  show_response: False
   request:
     url: http://192.168.28.118:32771/api/contracts/v3/parser/external/download_image
     method: GET
     params:
       task_id: ${read_extract_yaml(task_id,0)}
-      page_id: ${read_extract_yaml(PageStrID)}
+      page_id: ${read_extract_yaml(page_id)}
   validate:
     equals:
       status_code: 200
       "$.code": 200
-      "$.msg": "success"
 
-- name: "获取解析列表"
+- name: "设置比对审核状态"
   request:
-    url: http://192.168.28.118:32771/api/contracts/v3/parser/external/task/list
-    method: GET
-    params:
-      page: 1
-      pagesize: 10
+    url: http://192.168.28.118:32771/api/contracts/v3/comparison/external/review
+    method: POST
+    headers:
+      Content-Type: application/json
+    json:
+      task_id: "${read_extract_yaml(task_id,0)}"
+      status: 4
   validate:
     equals:
       status_code: 200
       "$.code": 200
-      "$.msg": "success"
 
-- name: "删除解析任务"
+- name: "导出比对任务的源文件 API"
+  show_response: False
   request:
-    url: http://192.168.28.118:32771/api/contracts/v3/parser/external/task/delete
+    url: http://192.168.28.118:32771/api/contracts/v3/comparison/external/export_source_file
     method: POST
     headers:
       Content-Type: application/json

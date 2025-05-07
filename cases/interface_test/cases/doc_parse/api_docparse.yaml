@@ -1,0 +1,152 @@
+---
+- name: "直接pdf2md解析 API"
+  fail_fast: True
+  show_response: False
+  request:
+    url: http://192.168.28.118:30005/ai/service/v1/pdf_to_markdown
+    method: POST
+    headers:
+      accept: application/octet-stream
+    files:
+      documents:
+        path: ./cases/doc_parse/files/产品买卖合同b.pdf
+        type: application/pdf
+  validate:
+    equals:
+      status_code: 200
+
+- name: "创建解析任务 API"
+  retry: 3
+  retry_interval: 2 # 失败后等待2秒再重试
+  fail_fast: True
+  request:
+    url: http://192.168.28.118:36394/api/contracts/v3/parser/external/task/create?parse_type=ducument&merge_images=1
+    method: POST
+    headers:
+      accept: application/json
+    files:
+      documents:
+        path: ./cases/doc_parse/files/产品买卖合同b.pdf
+        type: application/pdf
+  extract:
+    task_id: [text, "$.data.task_ids", 0]
+  validate:
+    equals:
+      status_code: 200
+
+- name: "获取解析结果 API"
+  retry: 3
+  retry_interval: 15 # 失败后等待2秒再重试
+  fail_fast: False
+  show_response: False
+  request:
+    url: http://192.168.28.118:36394/api/contracts/v3/parser/external/result
+    method: POST
+    headers:
+      Content-Type: application/json
+    json:
+      task_id: "${read_extract_yaml(task_id,0)}"
+  extract:
+    PageStrID: [text, "$.data.parse_result.pages[0].PageStrID", 0]
+  validate:
+    equals:
+      status_code: 200
+      "$.code": 200
+      "$.msg": "success"
+
+- name: "下载解析文档图片"
+  show_response: False
+  request:
+    url: http://192.168.28.118:36394/api/contracts/v3/parser/external/download_image
+    method: GET
+    params:
+      task_id: ${read_extract_yaml(task_id,0)}
+      page_id: ${read_extract_yaml(PageStrID)}
+  validate:
+    equals:
+      status_code: 200
+      "$.code": 200
+      "$.msg": "success"
+
+- name: "获取解析列表"
+  request:
+    url: http://192.168.28.118:36394/api/contracts/v3/parser/external/task/list
+    method: GET
+    params:
+      page: 1
+      pagesize: 10
+  validate:
+    equals:
+      status_code: 200
+      "$.code": 200
+      "$.msg": "success"
+
+- name: "导出原文件"
+  show_response: False
+  request:
+    url: http://192.168.28.118:36394/api/contracts/v3/parser/external/source_file/export
+    method: POST
+    headers:
+      Content-Type: application/json
+      accept: application/octet-stream
+    json:
+      task_ids: "${read_extract_yaml(task_id)}"
+  validate:
+    equals:
+      status_code: 200
+
+- name: "导出json文件"
+  show_response: False
+  request:
+    url: http://192.168.28.118:36394/api/contracts/v3/parser/external/json_file/export
+    method: POST
+    headers:
+      Content-Type: application/json
+      accept: application/octet-stream
+    json:
+      task_ids: "${read_extract_yaml(task_id)}"
+  validate:
+    equals:
+      status_code: 200
+
+- name: "导出markdown文件"
+  show_response: False
+  request:
+    url: http://192.168.28.118:36394/api/contracts/v3/parser/external/md_file/export
+    method: POST
+    headers:
+      Content-Type: application/json
+      accept: application/octet-stream
+    json:
+      task_ids: "${read_extract_yaml(task_id)}"
+  validate:
+    equals:
+      status_code: 200
+
+- name: "导出excel文件"
+  show_response: False
+  request:
+    url: http://192.168.28.118:36394/api/contracts/v3/parser/external/excel_file/export
+    method: POST
+    headers:
+      Content-Type: application/json
+      accept: application/octet-stream
+    json:
+      task_ids: "${read_extract_yaml(task_id)}"
+  validate:
+    equals:
+      status_code: 200
+
+- name: "删除解析任务"
+  request:
+    url: http://192.168.28.118:36394/api/contracts/v3/parser/external/task/delete
+    method: POST
+    headers:
+      Content-Type: application/json
+    json:
+      task_ids: "${read_extract_yaml(task_id)}"
+  validate:
+    equals:
+      status_code: 200
+      "$.code": 200
+      "$.msg": "success"
